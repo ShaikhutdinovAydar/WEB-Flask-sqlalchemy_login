@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 style="margin-left: 300px;">Works log</h1>
+    {%for i in listt%}
+        <h1>Action # {{i.id}}</h1>
+        <table style="margin-bottom: 30px width: 100%">
+        <tr style="background-color: grey">
+            <th style="padding-right: 30px">Title of activity</th>
+            <th style="padding-right: 30px">Team leader</th>
+            <th style="padding-right: 30px">Duration</th>
+            <th style="padding-right: 30px">List of collaborators</th>
+            <th style="padding-right: 30px">Is finished</th>
+        </tr>
+        <tr>
+            <td style="padding-right: 30px">
+                <span>{{i.job}}</span>
+            </td>
+            <td style="padding-right: 30px">
+                <span>{{i.team_leader}}</span>
+            </td>
+            <td style="padding-right: 30px">
+                <span>{{i.work_size}}</span>
+            </td>
+            <td style="padding-right: 30px">
+                <span>{{i.collaborators}}</span>
+            </td>
+            <td style="padding-right: 30px">
+                <span>{{i.is_finished}}</span>
+            </td>
+        </tr>
+        </table>
+    {% endfor %}
+
+{% endblock %}
