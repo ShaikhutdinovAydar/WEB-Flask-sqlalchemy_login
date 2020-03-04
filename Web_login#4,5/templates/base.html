@@ -18,15 +18,14 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-<h1>Миссия Колонизация Марса</h1>
-<h4>И на Марсе будут яблони цвести!</h4>
+<h1 style="display: inline-block">Миссия Колонизация Марса</h1>
 {% if current_user.is_authenticated %}
-    <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+    <a class="navbar-brand" href="/logout" style="float: right; margin-top:15px; margin-right: 30px">{{ current_user.name }}</a>
 {% else %}
-    <p>
-        <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-    </p>
+    <a class="btn btn-primary " href="/register" style="float: right; margin-top:15px; display: inline-block">Зарегистрироваться</a>
+    <a class="btn btn-primary " href="/login" style="float: right; margin-top:15px; display: inline-block; margin-right: 30px">Войти</a>
 {% endif %}
+<h4>И на Марсе будут яблони цвести!</h4>
 <div class="container">
     {% block content %}
     {% endblock %}

@@ -3,7 +3,8 @@ from flask import Flask, render_template
 import datetime
 from data.jobs import Jobs
 from flask import Flask, render_template, request
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user, \
+    login_required
 from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
 from wtforms import PasswordField, BooleanField, SubmitField, StringField
@@ -46,7 +47,8 @@ class AddingJob(FlaskForm):
 class RegisterForm(FlaskForm):
     email = EmailField('Login / email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    password_again = PasswordField('Repeat Password', validators=[DataRequired()])
+    password_again = PasswordField('Repeat Password',
+                                   validators=[DataRequired()])
     surname = StringField('Surname', validators=[DataRequired()])
     name = StringField('Name', validators=[DataRequired()])
     age = StringField('Age', validators=[DataRequired()])
@@ -62,6 +64,8 @@ def g():
     connect = db_session.create_session()
     listt = []
     for user in connect.query(Jobs):
+        name = connect.query(User).filter(User.id == user.team_leader).first()
+        user.team_leader = name.name
         listt.append(user)
     return render_template('jobs.html', listt=listt)
 
@@ -69,7 +73,6 @@ def g():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    print(1)
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
@@ -97,6 +100,13 @@ def register():
     return render_template('register.html', title='Регистрация', form=form)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
 @app.route('/adding_job', methods=['GET', 'POST'])
 def adding_job():
     form = AddingJob()
@@ -110,6 +120,7 @@ def adding_job():
             is_finished=form.is_finished.data
         )
         connect.add(job)
+        connect.merge(current_user)
         connect.commit()
         return redirect("/")
     return render_template('adding_job.html', title='Регистрация', form=form)
