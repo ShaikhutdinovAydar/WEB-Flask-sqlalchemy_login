@@ -6,6 +6,7 @@ from flask import Flask, render_template, request
 from flask_login import LoginManager, login_user, current_user, logout_user, \
     login_required
 from flask_wtf import FlaskForm
+from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import PasswordField, BooleanField, SubmitField, StringField
 from wtforms.fields.html5 import EmailField
@@ -44,6 +45,15 @@ class AddingJob(FlaskForm):
     submit = SubmitField('Add')
 
 
+class EditingJob(FlaskForm):
+    team_leader = StringField('Team Leader', validators=[DataRequired()])
+    job = StringField('Description of job', validators=[DataRequired()])
+    work_size = StringField('Work size', validators=[DataRequired()])
+    collaborators = StringField('Collaborators', validators=[DataRequired()])
+    is_finished = BooleanField('Is finished?')
+    submit = SubmitField('Edit')
+
+
 class RegisterForm(FlaskForm):
     email = EmailField('Login / email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -60,13 +70,11 @@ class RegisterForm(FlaskForm):
 
 @app.route("/")
 def g():
-    db_session.global_init(f"db/main_data_base.db")
     connect = db_session.create_session()
     listt = []
-    for user in connect.query(Jobs):
+    for user in connect.query(Jobs).all():
         name = connect.query(User).filter(User.id == user.team_leader).first()
-        user.team_leader = name.name
-        listt.append(user)
+        listt.append([user, name.name])
     return render_template('jobs.html', listt=listt)
 
 
@@ -78,8 +86,8 @@ def register():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
-        session = db_session.create_session()
-        if session.query(User).filter(User.email == form.email.data).first():
+        connect = db_session.create_session()
+        if connect.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
@@ -94,8 +102,8 @@ def register():
             address=form.address.data
         )
         user.set_password(form.password.data)
-        session.add(user)
-        session.commit()
+        connect.add(user)
+        connect.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -108,6 +116,7 @@ def logout():
 
 
 @app.route('/adding_job', methods=['GET', 'POST'])
+@login_required
 def adding_job():
     form = AddingJob()
     if form.validate_on_submit():
@@ -120,10 +129,43 @@ def adding_job():
             is_finished=form.is_finished.data
         )
         connect.add(job)
-        connect.merge(current_user)
         connect.commit()
         return redirect("/")
     return render_template('adding_job.html', title='Регистрация', form=form)
+
+
+@app.route("/edit_job/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_job(id):
+    form = EditingJob()
+    if request.method == "GET":
+        connect = db_session.create_session()
+        job = connect.query(Jobs).filter(Jobs.id == id,
+                                         Jobs.team_leader == current_user.id).first()
+        if job:
+            form.team_leader.data = job.team_leader
+            form.job.data = job.job
+            form.is_finished.data = job.is_finished
+            form.collaborators.data = job.collaborators
+            form.work_size.data = job.work_size
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        connect = db_session.create_session()
+        job = connect.query(Jobs).filter(Jobs.id == id,
+                                         Jobs.team_leader == current_user.id | current_user.id == 1).first()
+        print(job)
+        if job:
+            job.team_leader = form.team_leader.data
+            job.job = form.job.data
+            job.is_finished = form.is_finished.data
+            job.collaborators = form.collaborators.data
+            job.work_size = form.work_size.data
+            connect.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('edit_job.html', title='Редактирование новости', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])

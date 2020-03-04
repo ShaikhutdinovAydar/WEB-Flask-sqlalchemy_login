@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1 class="text-center">Works log</h1>
-    {%for i in listt%}
+    {%for i, names in listt%}
         <h1>Action # {{i.id}}</h1>
         <table style="width: 100%; margin-bottom:30px">
         <tr style="background-color: grey">
@@ -17,7 +17,7 @@
                 <span>{{i.job}}</span>
             </td>
             <td style="width: 15%;">
-                <span>{{i.team_leader}}</span>
+                <span>{{names}}</span>
             </td>
             <td style="width: 15%;">
                 <span>{{i.work_size}}</span>
