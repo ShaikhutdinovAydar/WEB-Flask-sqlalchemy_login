@@ -2,7 +2,18 @@
 
 {% block content %}
     <h1 class="text-center">Works log</h1>
+    {% if current_user.is_authenticated%}
+        <div>
+            <a href="/adding_job" class="btn btn-warning" style="margin-bottom:30px;">Добавить Работу</a>
+        </div>
+    {% endif %}
     {%for i, names in listt%}
+        {% if current_user.is_authenticated and (current_user.id == i.team_leader or current_user.id == 1)%}
+            <div>
+                <a href="/edit_job/{{ i.id }}" class="btn btn-warning">Изменить</a>
+                <a href="/job_delete/{{ i.id }}" class="btn btn-danger">Удалить</a>
+            </div>
+        {% endif %}
         <h1>Action # {{i.id}}</h1>
         <table style="width: 100%; margin-bottom:30px">
         <tr style="background-color: grey">

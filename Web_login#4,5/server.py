@@ -165,7 +165,23 @@ def edit_job(id):
             return redirect('/')
         else:
             abort(404)
-    return render_template('edit_job.html', title='Редактирование новости', form=form)
+    return render_template('edit_job.html', title='Редактирование новости',
+                           form=form)
+
+
+@app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def job_delete(id):
+    connect = db_session.create_session()
+    jobs = connect.query(Jobs).filter(Jobs.id == id,
+                                      Jobs.team_leader == current_user.id |
+                                      current_user.id == 1).first()
+    if jobs:
+        connect.delete(jobs)
+        connect.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -181,6 +197,17 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route("/departments")
+@login_required
+def departments():
+    connect = db_session.create_session()
+    listt = []
+    for user in connect.query(departments).all():
+        name = connect.query(User).filter(User.id == user.team_leader).first()
+        listt.append([user, name.name])
+    return render_template('jobs.html', listt=listt)
 
 
 if __name__ == "__main__":
