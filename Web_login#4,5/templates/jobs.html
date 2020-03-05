@@ -8,7 +8,7 @@
         </div>
     {% endif %}
     {%for i, names in listt%}
-        {% if current_user.is_authenticated and (current_user.id == i.team_leader or current_user.id == 1)%}
+        {% if current_user.is_authenticated and (current_user.id == i.team_leader or current_user.id == 1 or current_user.id == i.creater_id)%}
             <div>
                 <a href="/edit_job/{{ i.id }}" class="btn btn-warning">Изменить</a>
                 <a href="/job_delete/{{ i.id }}" class="btn btn-danger">Удалить</a>

@@ -14,3 +14,4 @@ class Jobs(SqlAlchemyBase):
     start_date = sqlalchemy.Column(sqlalchemy.String)
     end_date = sqlalchemy.Column(sqlalchemy.String)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean)
+    creater_id = sqlalchemy.Column(sqlalchemy.Integer)

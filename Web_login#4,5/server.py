@@ -126,7 +126,9 @@ def adding_job():
             job=form.job.data,
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
-            is_finished=form.is_finished.data
+            is_finished=form.is_finished.data,
+            start_date=datetime.datetime.now(),
+            creater_id=current_user.id
         )
         connect.add(job)
         connect.commit()
@@ -153,7 +155,7 @@ def edit_job(id):
     if form.validate_on_submit():
         connect = db_session.create_session()
         job = connect.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader == current_user.id | current_user.id == 1).first()
+                                         Jobs.team_leader == current_user.id | current_user.id == 1 | Jobs.creater_id == current_user.id).first()
         print(job)
         if job:
             job.team_leader = form.team_leader.data
