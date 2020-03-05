@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="text-center">Works log</h1>
+    {% if current_user.is_authenticated%}
+        <div>
+            <a href="/adding_job" class="btn btn-warning" style="margin-bottom:30px;">Добавить Работу</a>
+        </div>
+    {% endif %}
+    {%for i, names in listt%}
+        {% if current_user.is_authenticated and (current_user.id == i.team_leader or current_user.id == 1 or current_user.id == i.creater_id)%}
+            <div>
+                <a href="/edit_job/{{ i.id }}" class="btn btn-warning">Изменить</a>
+                <a href="/job_delete/{{ i.id }}" class="btn btn-danger">Удалить</a>
+            </div>
+        {% endif %}
+        <h1>Action # {{i.id}}</h1>
+        <table style="width: 100%; margin-bottom:30px">
+        <tr style="background-color: grey">
+            <th style="width: 35%;">Title of activity</th>
+            <th style="width: 15%;">Team leader</th>
+            <th style="width: 15%;">Duration</th>
+            <th style="width: 25%;">List of collaborators</th>
+            <th style="width: 10%;">Is finished</th>
+        </tr>
+        <tr style="background-color: #87cefa">
+            <td style="width: 35%;">
+                <span>{{i.job}}</span>
+            </td>
+            <td style="width: 15%;">
+                <span>{{names}}</span>
+            </td>
+            <td style="width: 15%;">
+                <span>{{i.work_size}}</span>
+            </td>
+            <td style="width: 25%;">
+                <span>{{i.collaborators}}</span>
+            </td>
+            <td style="width: 10%;">
+                <span>{{i.is_finished}}</span>
+            </td>
+        </tr>
+        </table>
+    {% endfor %}
+
+{% endblock %}
