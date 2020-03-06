@@ -142,8 +142,9 @@ def edit_job(id):
     form = EditingJob()
     if request.method == "GET":
         connect = db_session.create_session()
-        job = connect.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader == current_user.id).first()
+        job = connect.query(Jobs).filter(Jobs.id == id, (
+                (Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Jobs.creater_id))).first()
         if job:
             form.team_leader.data = job.team_leader
             form.job.data = job.job
@@ -154,8 +155,9 @@ def edit_job(id):
             abort(404)
     if form.validate_on_submit():
         connect = db_session.create_session()
-        job = connect.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader == current_user.id | current_user.id == 1 | Jobs.creater_id == current_user.id).first()
+        job = connect.query(Jobs).filter(Jobs.id == id, (
+                (Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Jobs.creater_id))).first()
         print(job)
         if job:
             job.team_leader = form.team_leader.data
@@ -175,9 +177,8 @@ def edit_job(id):
 @login_required
 def job_delete(id):
     connect = db_session.create_session()
-    jobs = connect.query(Jobs).filter(Jobs.id == id,
-                                      Jobs.team_leader == current_user.id |
-                                      current_user.id == 1).first()
+    jobs = connect.query(Jobs).filter(Jobs.id == id, ((Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+            current_user.id == Jobs.creater_id))).first()
     if jobs:
         connect.delete(jobs)
         connect.commit()
@@ -226,9 +227,12 @@ def edit_department(id):
     form = EditingDepartment()
     if request.method == "GET":
         connect = db_session.create_session()
-        department = connect.query(Departments).filter(Departments.id == id,
-                                                       Departments.chief == current_user.id).first()
+        department = connect.query(Departments).filter(Departments.id == id, (
+                (Departments.chief == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Departments.user_id))).first()
+        print(department)
         if department:
+            print(1)
             form.title.data = department.title
             form.chief.data = department.chief
             form.members.data = department.members
@@ -237,8 +241,9 @@ def edit_department(id):
             abort(404)
     if form.validate_on_submit():
         connect = db_session.create_session()
-        department = connect.query(Departments).filter(Departments.id == id,
-                                                       Departments.chief == current_user.id | current_user.id == 1).first()
+        department = connect.query(Departments).filter(Departments.id == id, (
+                (Departments.chief == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Departments.user_id))).first()
         if department:
             department.title = form.title.data
             department.chief = form.chief.data
@@ -283,9 +288,9 @@ def adding_department():
 @login_required
 def department_delete(id):
     connect = db_session.create_session()
-    department = connect.query(Departments).filter(Departments.id == id,
-                                                   Departments.chief == current_user.id |
-                                                   current_user.id == 1).first()
+    department = connect.query(Departments).filter(Departments.id == id, (
+            (Departments.chief == current_user.id) | (current_user.id == 1) | (
+            current_user.id == Departments.user_id))).first()
     if department:
         connect.delete(department)
         connect.commit()

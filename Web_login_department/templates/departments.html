@@ -11,7 +11,7 @@
         </div>
     {% endif %}
     {%for i, names in listt%}
-        {% if current_user.is_authenticated and (current_user.id == i.chief or current_user.id == 1 or current_user.id == i.user_id)%}
+        {% if current_user.is_authenticated and ((current_user.id == i.chief) or (current_user.id == 1) or (current_user.id == i.user_id))%}
             <div>
                 <a href="/edit_department/{{ i.id }}" class="btn btn-warning">Изменить</a>
                 <a href="/department_delete/{{ i.id }}" class="btn btn-danger">Удалить</a>
