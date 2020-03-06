@@ -142,8 +142,9 @@ def edit_job(id):
     form = EditingJob()
     if request.method == "GET":
         connect = db_session.create_session()
-        job = connect.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader == current_user.id).first()
+        job = connect.query(Jobs).filter(Jobs.id == id, (
+                (Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Jobs.creater_id))).first()
         if job:
             form.team_leader.data = job.team_leader
             form.job.data = job.job
@@ -154,8 +155,9 @@ def edit_job(id):
             abort(404)
     if form.validate_on_submit():
         connect = db_session.create_session()
-        job = connect.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader == current_user.id | current_user.id == 1 | Jobs.creater_id == current_user.id).first()
+        job = connect.query(Jobs).filter(Jobs.id == id, (
+                (Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+                current_user.id == Jobs.creater_id))).first()
         print(job)
         if job:
             job.team_leader = form.team_leader.data
@@ -175,13 +177,14 @@ def edit_job(id):
 @login_required
 def job_delete(id):
     connect = db_session.create_session()
-    jobs = connect.query(Jobs).filter(Jobs.id == id,
-                                      Jobs.team_leader == current_user.id |
-                                      current_user.id == 1).first()
+    jobs = connect.query(Jobs).filter(Jobs.id == id, ((Jobs.team_leader == current_user.id) | (current_user.id == 1) | (
+            current_user.id == Jobs.creater_id))).first()
+    print(jobs)
     if jobs:
         connect.delete(jobs)
         connect.commit()
     else:
+        print(1)
         abort(404)
     return redirect('/')
 
@@ -199,17 +202,6 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
-
-
-@app.route("/departments")
-@login_required
-def departments():
-    connect = db_session.create_session()
-    listt = []
-    for user in connect.query(departments).all():
-        name = connect.query(User).filter(User.id == user.team_leader).first()
-        listt.append([user, name.name])
-    return render_template('jobs.html', listt=listt)
 
 
 if __name__ == "__main__":
